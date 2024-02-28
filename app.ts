@@ -1,16 +1,27 @@
 import Koa from 'koa'
 import http from 'http'
 import koaBody, { HttpMethodEnum } from 'koa-body'
+import koaJwt from 'koa-jwt'
 import cors from '@koa/cors'
 import { autoRouter, getIpAddress } from './utils'
 import responseMiddleware from './middleware/response'
-import questionRouter from './router/question'
-import requireDirectory from 'require-directory'
-
-const port = 3000
+import verifyUserTokenMiddleware from './middleware/verifyUserToken'
+// import questionRouter from './router/question'
+// import requireDirectory from 'require-directory'
+import { NO_NEED_TOKEN, TOKEN_SECRET } from './const/index'
+const port = 3002
 const app = new Koa()
 app.use(cors())
 app.use(responseMiddleware)
+app.use(verifyUserTokenMiddleware)
+app.use(
+  koaJwt({
+    secret: TOKEN_SECRET
+  }).unless({
+    path: NO_NEED_TOKEN
+  })
+)
+
 app.use(
   koaBody({
     multipart: true,
@@ -22,6 +33,7 @@ app.use(
     ]
   })
 )
+
 // app.use(questionRouter.routes()).use(questionRouter.allowedMethods())
 const server = http.createServer(app.callback())
 // 自动注册路由

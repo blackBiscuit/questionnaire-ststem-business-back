@@ -1,6 +1,5 @@
 import nodemailer from 'nodemailer'
 import Code from './code'
-import { CODE_EXPIRATION_TIME } from '../const'
 export const nodeMail = nodemailer.createTransport({
   service: '163', //类型qq邮箱
   port: 465, //上文获取的port
@@ -40,12 +39,5 @@ export const sendHtmlEmail = (email: string, code: string) => {
 }
 export const sendEmail = (email: string, code: string) => {
   sendHtmlEmail(email, code)
-  Code.addEmail(
-    email,
-    code,
-    setTimeout(async () => {
-      // 到时间清除过期验证码
-      await Code.removeEmail(email)
-    }, CODE_EXPIRATION_TIME)
-  )
+  Code.addEmail(email, code)
 }

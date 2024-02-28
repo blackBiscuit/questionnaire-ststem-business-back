@@ -1,10 +1,13 @@
 import { Context, Next } from 'koa'
 const responseMiddleware = async (ctx: Context, next: Next) => {
-  ctx.success = (data: any) => {
-    ctx.body = {
-      errno: 0,
-      data
+  ctx.success = <T extends any = any>(data?: T) => {
+    const res: Record<string, any> = {
+      errno: 0
     }
+    if (data !== undefined) {
+      res.data = data
+    }
+    ctx.body = res
   }
   ctx.error = (code: number, msg?: string) => {
     ctx.body = {

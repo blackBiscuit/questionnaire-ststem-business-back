@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int              @id @default(autoincrement())
+  username       String
+  email          String           @unique
+  password       String
+  questions      Question[]
+  createdTime    DateTime         @default(now()) @map("created_time")
+  QuestionAnswer QuestionAnswer[]
+}
+
+model Question {
+  id                   Int              @id @default(autoincrement())
+  author               User?            @relation(fields: [authorId], references: [id])
+  title                String
+  desc                 String           @default("")
+  css                  String           @default("")
+  js                   String           @default("")
+  componentList        Json?            @default("[]") @map("component_list")
+  publishComponentList Json?            @default("[]") @map("publish_component_list")
+  answerCount          Int              @map("answer_count")
+  isStar               Boolean          @default(false) @map("is_star")
+  isPublished          Boolean          @default(false) @map("is_published")
+  createAt             DateTime         @default(now()) @map("created_at")
+  isDeleted            Boolean          @default(false) @map("is_deleted")
+  authorId             Int?             @map("author_id")
+  QuestionAnswer       QuestionAnswer[]
+}
+
+model QuestionAnswer {
+  id         Int      @id @default(autoincrement())
+  question   Question @relation(fields: [questionId], references: [id])
+  questionId Int      @map("question_id")
+  // [{'c1': '答案','c2':'答案'}]
+  answer     Json
+  authorId   Int?     @map("author_id")
+  author     User?    @relation(fields: [authorId], references: [id])
+
+  @@map("question_answer")
+}
+
+model QuestionTemplate {
+  id            Int             @id @default(autoincrement())
+  kind          String
+  group QuestionGroup[]
+  @@map("question_template")
+}
+
+model QuestionGroup {
+  id               Int              @id @default(autoincrement())
+  title            String
+  desc             String
+  list             QuestionList[]
+  questionTemplate QuestionTemplate? @relation(fields: [templateId], references: [id])
+  templateId       Int?
+   @@map("question_group")
+}
+
+model QuestionList {
+  id            Int           @id @default(autoincrement())
+  group         QuestionGroup? @relation(fields: [groupId], references: [id])
+  groupId       Int?           @map("group_id")
+  title         String
+  desc          String        @default("")
+  componentList Json?         @default("[]") @map("component_list")
+  createAt      DateTime      @default(now()) @map("created_at")
+
+  @@map("question_list")
+}
+
+// model QuestionGroup {
+//   id    Int    @id @default(autoincrement())
+//   title String
+//   desc  String @default("")
+//   componentList        Json?            @default("[]") @map("component_list")
+//   createAt             DateTime         @default(now()) @map("created_at")
+//   type String
+//   kind 
+// }
+
+// questionId id name answer answerId 

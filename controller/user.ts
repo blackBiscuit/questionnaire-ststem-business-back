@@ -2,14 +2,13 @@ import { Context } from 'koa'
 import md5 from 'md5'
 import RandomStr from 'randomstring'
 import { sign } from 'jsonwebtoken'
-import { registerService, loginService } from '../service/user'
-import { RegisterUserInfo, LoginUser, UserInfo } from '../types/user'
+import { registerService, loginService, updateUserInfo } from '../service/user'
+import { RegisterUserInfo, LoginUser } from '../types/user'
 import { ErrorList } from '../const/code'
 import { TOKEN_SECRET } from '../const'
 import { sendEmail } from '../utils/email'
 import { getUserInfo } from '../utils/user'
 export const registerController = async (ctx: Context) => {
-  console.log(ctx.request.body)
   const user = ctx.request.body as RegisterUserInfo
   try {
     const u = await registerService({ ...user, password: md5(user.password) })
@@ -32,6 +31,7 @@ export const loginController = async (ctx: Context) => {
     ...ctx.request.body,
     password: md5(ctx.request.body.password)
   } as LoginUser
+  console.log(userInfo.password)
   const user = await loginService(userInfo)
   if (user) {
     const { email, username, id } = user
@@ -57,7 +57,6 @@ export const loginController = async (ctx: Context) => {
 }
 export const userInfoController = async (ctx: Context) => {
   const { email, username } = getUserInfo(ctx)
-  console.log()
   ctx.success({ username, email })
 }
 export const emailCodeController = async (ctx: Context) => {
@@ -65,4 +64,20 @@ export const emailCodeController = async (ctx: Context) => {
   const codeStr = RandomStr.generate(6)
   sendEmail(email, codeStr)
   ctx.success({})
+}
+export const forgetPasswordController = async (ctx: Context) => {
+  const user = ctx.request.body as RegisterUserInfo
+  console.log('update', md5(user.password))
+  try {
+    const u = await updateUserInfo({
+      email: user.email,
+      username: user.username,
+      password: md5(user.password)
+    })
+    const { username, email } = u
+    ctx.success({
+      username,
+      email
+    })
+  } catch (error) {}
 }

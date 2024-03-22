@@ -33,7 +33,6 @@ app.use(
     ]
   })
 )
-
 // app.use(questionRouter.routes()).use(questionRouter.allowedMethods())
 const server = http.createServer(app.callback())
 // 自动注册路由

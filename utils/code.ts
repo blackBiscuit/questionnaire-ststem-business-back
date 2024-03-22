@@ -28,7 +28,7 @@ class Code {
       possibleToRequestTimer: Code.emailObj[email]?.possibleToRequestTimer
         ? Code.emailObj[email].possibleToRequestTimer
         : setTimeout(() => {
-          // 到期可再次请求验证码
+            // 到期可再次请求验证码
             Code.setPossibleToRequest(email, true)
             if (Code.emailObj[email]) {
               Code.emailObj[email].possibleToRequestTimer = null
@@ -75,6 +75,7 @@ class Code {
     const currentEmail = await Code.getEmailInfo(email)
     const { possibleToRequest = true } = currentEmail
     console.log(possibleToRequest)
+    if (!Code.emailObj[email] && currentEmail) return true
     return possibleToRequest
   }
 }

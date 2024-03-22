@@ -4,7 +4,6 @@ import { NO_NEED_TOKEN, TOKEN_SECRET } from '../const'
 import { ErrorList } from '../const/code'
 import { TokenUserInfo } from '../types/user'
 const verifyUserTokenMiddleware = async (ctx: Context, next: Next) => {
-  console.log(ctx.url)
   if (NO_NEED_TOKEN.find((rep) => rep.test(ctx.url))) return await next()
   if (ctx.header?.authorization) {
     const parts = ctx.header.authorization.split(' ')
@@ -46,7 +45,6 @@ const verifyUserTokenMiddleware = async (ctx: Context, next: Next) => {
       } else {
         throw err
       }
-      //   prohibitPassage(ctx, err, ErrorList.MissingToken)
     })
   }
   await next()

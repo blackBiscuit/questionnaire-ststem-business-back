@@ -1,15 +1,18 @@
 import koaRouter from 'koa-router'
 import { Context, DefaultContext } from 'koa'
-import { ulid } from 'ulid'
-import { QuestionData } from '../utils'
 import {
   createQuestionController,
   deleteQuestionsController,
   duplicateQuestionController,
+  duplicateQuestionTemplateItemController,
   getQuestionController,
   getQuestionListController,
   publishQuestionController,
   publishedQuestionChangedController,
+  questionGroupController,
+  questionGroupItemController,
+  questionTemplateController,
+  questionTemplateItemController,
   updateQuestionController,
   updateQuestionsController
 } from '../controller/question'
@@ -45,8 +48,19 @@ router.post('/question/duplicate/:id', duplicateQuestionController)
 router.delete('/question', deleteQuestionsController)
 // 问卷发布状态
 router.patch('/question/published/:id', publishQuestionController)
+//问卷发布后是否改变
 router.get(
   '/question/published/changed/:id',
   publishedQuestionChangedController
 )
+//获取问卷模板分类
+router.get('/question/template', questionTemplateController)
+//获取问卷模板分类详情 group
+router.get('/question/group', questionGroupController)
+//获取问卷模板单个group详情
+router.get('/question/group/:id', questionGroupItemController)
+//获取问卷模板详情
+router.get('/question/template/:id',questionTemplateItemController)
+//复制问卷模板详情
+router.get('/question/template/duplicate/:id',duplicateQuestionTemplateItemController)
 export default router

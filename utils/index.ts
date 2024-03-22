@@ -90,8 +90,6 @@ export const getQuestionInfo = (id: number) => {
     id: id || 0,
     title: '大学生消费情况调查问卷',
     desc: '',
-    css: '',
-    js: '',
     createAt: '',
     answerCount: 0,
     isStar: false,
@@ -404,7 +402,9 @@ export const getQuestionInfo = (id: number) => {
           isVertical: true
         }
       }
-    ]
+    ],
+    startTime: null,
+    endTime: null
   }
   return questionContent
 }

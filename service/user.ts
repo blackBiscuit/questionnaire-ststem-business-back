@@ -21,3 +21,16 @@ export const loginService = async (user: LoginUser) => {
   console.log(currentUser)
   return currentUser
 }
+export const updateUserInfo = async (user: Partial<RegisterUserInfo>) => {
+  const { email, password, username } = user
+  const u = await prisma.user.update({
+    where: {
+      email
+    },
+    data: {
+      password,
+      username
+    }
+  })
+  return u
+}

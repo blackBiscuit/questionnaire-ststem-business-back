@@ -124,14 +124,14 @@ export interface QuestionInfo {
   id: number
   title: string
   desc?: string
-  css?: string
-  js?: string
   componentList: QuestionComponent[]
   answerCount: number
   isStar: boolean
   isPublished: boolean
   createAt: string
   isDeleted: boolean
+  startTime: Date | null
+  endTime: Date | null
 }
 type OmitName = 'id' | 'answerCount' | 'createAt'
 export type QuestionOpt = Partial<Omit<QuestionInfo, OmitName>>

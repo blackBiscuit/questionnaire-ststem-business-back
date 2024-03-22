@@ -1,7 +1,5 @@
 import { Context, DefaultContext } from 'koa'
 import koaRouter from 'koa-router'
-import randomStr from 'randomstring'
-import { sendEmail } from '../utils/email'
 import { ErrorList } from '../const/code'
 import verifyEmailMiddleware from '../middleware/verifyEmail'
 import verifyPramsElement from '../middleware/verifyPramsElement'
@@ -10,8 +8,10 @@ import {
   registerController,
   loginController,
   userInfoController,
-  emailCodeController
+  emailCodeController,
+  forgetPasswordController
 } from '../controller/user'
+import verifyHaveUserMiddleware from '../middleware/verifyHaveUser'
 
 const router = new koaRouter<DefaultContext, Context>({
   prefix: '/api/user'
@@ -21,7 +21,12 @@ router.post('/register', verifyEmailCodeMiddleware, registerController)
 router.post('/login', loginController)
 //KLRSRUORFDSDFHDA
 
-router.post('/email/code', verifyEmailMiddleware, emailCodeController)
+router.post(
+  '/email/code',
+  verifyHaveUserMiddleware,
+  verifyEmailMiddleware,
+  emailCodeController
+)
 router.post(
   '/test/:email',
   verifyPramsElement([
@@ -60,4 +65,5 @@ router.post(
     ctx.success(0)
   }
 )
+router.patch('/forget',verifyEmailCodeMiddleware,forgetPasswordController)
 export default router

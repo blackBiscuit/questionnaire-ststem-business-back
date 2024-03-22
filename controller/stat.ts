@@ -9,6 +9,7 @@ import {
   getAnswerDataListKeys
 } from '../utils'
 import { QuestionComponent } from '../types/question'
+import { DEFAULT_STAT_PAGE, DEFAULT_STAT_PAGE_SIZE } from '../const'
 const formatAnswerList = (list: Record<string, string | number | string[]>[]) =>
   list.map((item) => {
     Object.keys(item).forEach((key) => {
@@ -28,7 +29,14 @@ export const getAnswerDataListController = async (ctx: Context) => {
     return
   }
   const userInfo = getUserInfo(ctx)
-  const answerDataList = await getAnswerDataListServices(+questionId, userInfo)
+  const page = Number(ctx.query.page) || DEFAULT_STAT_PAGE
+  const pageSize = Number(ctx.query.pageSize) || DEFAULT_STAT_PAGE_SIZE
+  const answerDataList = await getAnswerDataListServices(
+    +questionId,
+    userInfo,
+    page,
+    pageSize
+  )
   if (!answerDataList) {
     ctx.success({
       total: 0,
@@ -60,7 +68,11 @@ export const getAnswerDataListCountController = async (ctx: Context) => {
     return
   }
   const userInfo = getUserInfo(ctx)
-  const answerDataList = await getAnswerDataListServices(+questionId, userInfo)
+  const answerDataList = await getAnswerDataListServices(
+    +questionId,
+    userInfo,
+   
+  )
   if (!answerDataList) {
     ctx.success({
       stat: []
@@ -91,30 +103,30 @@ export const getAnswerDataListCountController = async (ctx: Context) => {
     stat
   })
 }
-export const getAnswerDataListKeysController = async (ctx: Context) => {
-  const { componentId, questionId } = ctx.params
-  if (!questionId || !componentId) {
-    ctx.error(ErrorList.ParamsNull.code, ErrorList.ParamsNull.msg)
-    return
-  }
-  const userInfo = getUserInfo(ctx)
-  const answerDataList = await getAnswerDataListServices(+questionId, userInfo)
-  if (!answerDataList) {
-    ctx.success({
-      keys: []
-    })
-    return
-  }
-  const { total, list } = answerDataList
-  if (!answerDataList.componentList) {
-    ctx.success({
-      keys: []
-    })
-    return
-  }
-  const componentList = JSON.parse(
-    answerDataList.componentList as string
-  ) as QuestionComponent[]
-  const listFormat = formatAnswerList(list)
-  //getAnswerDataListKeys
-}
+// export const getAnswerDataListKeysController = async (ctx: Context) => {
+//   const { componentId, questionId } = ctx.params
+//   if (!questionId || !componentId) {
+//     ctx.error(ErrorList.ParamsNull.code, ErrorList.ParamsNull.msg)
+//     return
+//   }
+//   const userInfo = getUserInfo(ctx)
+//   const answerDataList = await getAnswerDataListServices(+questionId, userInfo)
+//   if (!answerDataList) {
+//     ctx.success({
+//       keys: []
+//     })
+//     return
+//   }
+//   const { total, list } = answerDataList
+//   if (!answerDataList.componentList) {
+//     ctx.success({
+//       keys: []
+//     })
+//     return
+//   }
+//   const componentList = JSON.parse(
+//     answerDataList.componentList as string
+//   ) as QuestionComponent[]
+//   const listFormat = formatAnswerList(list)
+//   //getAnswerDataListKeys
+// }

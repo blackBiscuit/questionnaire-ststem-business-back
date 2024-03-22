@@ -38,18 +38,13 @@ export const getQuestionListService = async (
   const { id } = userInfo
   const { isDeleted, isStar, keyword, page, pageSize } = opt
   console.log(isDeleted)
-  const countWhere: {
-    authorId: number
-    isDeleted: boolean
-    isStar?: boolean
-    keyword?: string
-  } = {
+  const countWhere = {
     authorId: id,
     isDeleted,
-    isStar
-  }
-  if (keyword) {
-    countWhere.keyword = keyword
+    isStar,
+    title: {
+      contains: keyword
+    }
   }
   const total = await prisma.question.count({
     where: countWhere
@@ -58,7 +53,12 @@ export const getQuestionListService = async (
   const questionList = await prisma.question.findMany({
     skip: (page - 1) * pageSize,
     take: pageSize,
-    where: countWhere
+    where: countWhere,
+    orderBy: [
+      {
+        createAt: 'desc'
+      }
+    ]
   })
   console.log(questionList)
   return {
@@ -95,14 +95,12 @@ export const duplicateQuestionService = async (
     }
   })
   if (!duplicateQuestion) return
-  const { title, css, js, desc, componentList, authorId } = duplicateQuestion
+  const { title, desc, componentList, authorId } = duplicateQuestion
   const newQuestion = await prisma.question.create({
     data: {
       ...DEFAULT_QUESTION,
       authorId,
       title,
-      css,
-      js,
       desc,
       componentList: componentList!
     }
@@ -161,9 +159,14 @@ export const deleteQuestionsService = async (
 export const publishQuestionService = async (
   questionId: number,
   published: boolean,
-  userInfo: TokenUserInfo
+  userInfo: TokenUserInfo,
+  time: {
+    startTime: Date | null
+    endTime: Date | null
+  }
 ) => {
   const { id } = userInfo
+  const { startTime, endTime } = time
   const question = await prisma.question.findUnique({
     where: { authorId: id, id: questionId }
   })
@@ -182,6 +185,7 @@ export const publishQuestionService = async (
       })
     }
   }
+
   const count = await prisma.questionAnswer.count({
     where: {
       questionId
@@ -192,9 +196,11 @@ export const publishQuestionService = async (
     ? {
         isPublished: published,
         answerCount: count,
-        publishComponentList: componentList
+        publishComponentList: componentList,
+        startTime,
+        endTime
       }
-    : { isPublished: published, answerCount: count }
+    : { isPublished: published, answerCount: count, publishComponentList: [] }
   //发布状态,把新问卷给published问卷
   const newQuestion = await prisma.question.update({
     where: {
@@ -216,4 +222,92 @@ export const publishedQuestionChangedService = async (
   if (!question) return null
   const { componentList, publishComponentList } = question
   return publishComponentList !== componentList
+}
+export const questionTemplateService = async () => {
+  const templateKinds = await prisma.questionTemplate.findMany({
+    distinct: ['kind']
+  })
+  return templateKinds
+}
+export const questionGroupService = async (type?: number) => {
+  const templateGroups = await prisma.questionGroup.findMany({
+    where: {
+      templateId: type
+    },
+    select: {
+      id: true,
+      title: true,
+      desc: true
+    }
+  })
+  console.log(237, templateGroups)
+  return templateGroups
+}
+export const questionGroupItemService = async (id: number) => {
+  const groupItem = await prisma.questionGroup.findUnique({
+    where: {
+      id
+    },
+    select: {
+      title: true,
+      desc: true,
+      list: {
+        select: {
+          id: true,
+          title: true,
+          createAt: true
+        }
+      }
+    }
+  })
+  return groupItem
+}
+export const questionTemplateItemService = async (id: number) => {
+  const templateQuestion = await prisma.questionList.findUnique({
+    where: {
+      id
+    },
+    select: {
+      id: true,
+      title: true,
+      desc: true,
+      componentList: true,
+      createAt: true,
+      groupId: true,
+      group: {
+        select: {
+          title: true
+        }
+      }
+    }
+  })
+  return templateQuestion
+}
+export const duplicateQuestionTemplateItemService = async (
+  duplicateId: number,
+  userInfo: TokenUserInfo
+) => {
+  const duplicateQuestion = await prisma.questionList.findUnique({
+    where: {
+      id: duplicateId
+    },
+    select: {
+      title: true,
+      desc: true,
+      componentList: true
+    }
+  })
+  if (!duplicateQuestion) return null
+  const { title, desc, componentList } = duplicateQuestion
+  const { id: authorId } = userInfo
+  const newQuestion = await prisma.question.create({
+    data: {
+      ...DEFAULT_QUESTION,
+      authorId,
+      title,
+      desc,
+      componentList: componentList!
+    }
+  })
+  return newQuestion
 }

@@ -4,7 +4,7 @@ export interface UserInfo {
 }
 export interface RegisterUserInfo extends UserInfo {
   password: string
-  emailCode: string
+ // emailCode: string
 }
 export interface LoginUser {
   email: string

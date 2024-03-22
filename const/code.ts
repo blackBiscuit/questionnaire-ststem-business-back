@@ -51,6 +51,14 @@ export class ErrorList {
     code: 10010,
     msg: '用户未登录，请登录'
   }
+  static readonly ParamsErr = {
+    code: 10011,
+    msg: '参数错误'
+  }
+  static readonly NotUser ={
+    code: 10012,
+    msg: '用户不存在，请先注册'
+  }
   static readonly DuplicateErr = {
     code: 11001,
     msg: '复制问卷失败,请核对问卷后重试'

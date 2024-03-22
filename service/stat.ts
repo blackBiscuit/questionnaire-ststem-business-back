@@ -2,10 +2,14 @@ import prisma from '../db/mysql'
 import { TokenUserInfo } from '../types/user'
 export const getAnswerDataListServices = async (
   questionId: number,
-  userInfo: TokenUserInfo
+  userInfo: TokenUserInfo,
+  page?: number,
+  pageSize?: number
 ) => {
   const { id } = userInfo
   const questionAnswer = await prisma.questionAnswer.findMany({
+    skip: page && pageSize ? (page - 1) * pageSize : undefined,
+    take: pageSize,
     select: {
       answer: true,
       id: true
@@ -13,7 +17,12 @@ export const getAnswerDataListServices = async (
     where: {
       questionId,
       authorId: id
-    }
+    },
+    orderBy: [
+      {
+        id: 'desc'
+      }
+    ]
   })
   // console.log(15, questionAnswer)
   const questionObj = await prisma.question.findUnique({
